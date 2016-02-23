@@ -1,4 +1,12 @@
-// http://blog.tmorris.net/posts/the-writer-monad-using-scala-example/
+/**
+  * Copyright 2010-2016 Tony Morris
+  * Included with his permission
+  * See http://blog.tmorris.net/posts/the-writer-monad-using-scala-example/
+  *
+  * Apache License
+  * Version 2.0, January 2004
+  * http://www.apache.org/licenses/
+  */
 package tonymorris
 
 trait Monoid[A] {

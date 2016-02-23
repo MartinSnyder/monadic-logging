@@ -50,74 +50,310 @@
 				</section>
 
                 <section>
-                    <h2>Some Perils of Traditional Logging</h2>
-                    <ul>
-                        <li>Immediacy implies synchronization</li>
-                        <li>Interleaved log entries are difficult to correlate</li>
-                        <li>Identifying executing server in a cluster</li>
-                        <li>Correlating logs across tiers</li>
-                    </ul>
-                    <aside class="notes">
-                    </aside>
+                    <section>
+                        <h2>Logging is a mess</h2>
+                        <ul>
+                            <li>Immediacy implies synchronization</li>
+                            <li>Interleaved log entries</li>
+                            <li>Clustered Servers</li>
+                            <li>Cross-tier correlation</li>
+                        </ul>
+                        <aside class="notes">
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Mess #1 - Immediacy implies synchronization</h2>
+                        <p>
+                            A system has a transient problem.  Logging is added to diagnose the
+                            problem which then becomes non-reproducible.
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>Caused by conditional synchronization</li>
+                                <li>Mitigate by removing immediacy</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Mess #2 - Interleaved log entries</h2>
+                        <p>
+                            A user in a multi-user system performs an action known to produce an unexpected behavior.
+                            Tracing their execution through the log file is difficult because their log statements are
+                            interleaved with log statements from other users.
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>Mitigate by augmenting log entries with ThreadId, RequestId</li>
+                                <li>Can introduce unnecessary code dependencies</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Mess #3 - Clustered Servers</h2>
+                        <p>
+                            A user performs an action known to produce an unexpected behavior.
+                            Because the production system involves a cluster of servers, multiple log files must be
+                            downloaded and analyzed to find the activity of interest.
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>Mitigate with centralized log system or Splunk</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Mess #4 - Cross-tier correlation</h2>
+                        <p>
+                            A user performs an action known to produce an unexpected behavior.
+                            The path of execution involves multiple server processes.  Tracing their execution
+                            through the multiple systems is difficult because there is no reliable way to correlate
+                            the log statements across systems.
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>Mitigate by propagating RequestId</li>
+                                <li>Mitigate by relying on time synchronization and aggregating</li>
+                            </ul>
+                        </aside>
+                    </section>
                 </section>
 
                 <section>
-                    <h2>Peril #1 - Immediacy implies synchronization</h2>
-                    <p>
-                        A system has a transient problem.  A timing issue results in a fault or deadlock.
-                        Logging is added to diagnose the problem, and it promptly becomes non-reproducible.
-                    </p>
-                    <aside class="notes">
-                        <ul>
-                            <li>Caused by conditional synchronization</li>
-                            <li>Mitigate by removing immediacy</li>
-                        </ul>
-                    </aside>
+                    <section>
+                        <h2>Writer Monad Tutorial</h2>
+<pre><code class="scala">case class SimpleWriter[T](log: List[String], value: T) {
+    def map[B](f: T => B): SimpleWriter[B] =
+        SimpleWriter(log, f(value))
+
+    def flatMap[B](f: T => SimpleWriter[B]) = {
+        val nextWriter = f(value)
+        SimpleWriter(log ::: nextWriter.log, nextWriter.value)
+    }
+}</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Writer Monad Usage</h2>
+<pre><code class="scala">def loggedAdder(a: Int, b: Int): SimpleWriter[Int] =
+    SimpleWriter(List(s"Added $a to $b"), a + b)
+
+def loggedToString(o: Any): SimpleWriter[String] =
+    SimpleWriter(List(s"Converted $o to string"), o.toString)
+
+def main(args: Array[String]) = {
+    val resultWithLog = for (
+        sum <- loggedAdder(5, 7);
+        converted <- loggedToString(sum)
+    ) yield s"--> $converted <--"
+
+    resultWithLog.log.foreach(l => println(s"LOG: $l"))
+    println(s"Output is ${resultWithLog.value}")
+}</code></pre>
+<pre><code class="scala">LOG: Added 5 to 7
+LOG: Converted 12 to string
+Output is --> 12 <--</code></pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>for comprehension invokes flatMap which aggregates writers</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Expanded Logging Monad</h2>
+<pre><code class="scala">object SimpleLogger {
+    case class Entry(msg: String, timestamp: Long)
+}
+
+case class SimpleLogger[T](log: List[Entry], value: T) {
+    def map[B](f: T => B): SimpleLogger[B] =
+        SimpleLogger(log, f(value))
+
+    def flatMap[B](f: T => SimpleLogger[B]) = {
+        val nextWriter = f(value)
+        SimpleLogger(log ::: nextWriter.log, nextWriter.value)
+    }
+}</code></pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>Replace strings in the writer with a structure specific to logging</li>
+                            </ul>
+                        </aside>
+                    </section>
                 </section>
 
                 <section>
-                    <h2>Peril #2 - Interleaved log entries are difficult to correlate</h2>
-                    <p>
-                        A user in a multi-user system performs an action known to produce an unexpected behavior.
-                        Tracing their execution through the log file is difficult because their log statements are
-                        interleaved with log statements from other users.
-                    </p>
-                    <aside class="notes">
-                        <ul>
-                            <li>Mitigate by augmenting log entries with ThreadId, RequestId</li>
-                            <li>Can introduce unnecessary code dependencies</li>
-                        </ul>
-                    </aside>
+                    <section>
+                        <h2>Solved - Immediacy implies synchronization</h2>
+                        <p>
+                            A system has a transient problem.  Turning logging on or off
+                            no longer affects program execution so the issue can be more easily
+                            analyzed.
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>Fewer writes</li>
+                                <li>Writes are at functional I/O boundaries, outside of logic processing</li>
+                            </ul>
+                        </aside>
+                    </section>
                 </section>
 
                 <section>
-                    <h2>Peril #3 - Identifying executing server in a cluster</h2>
-                    <p>
-                        A user performs an action known to produce an unexpected behavior.
-                        Because the production system involves a cluster of servers, multiple log files must be
-                        downloaded and analyzed to find the activity of interest.
-                    </p>
-                    <aside class="notes">
-                        <ul>
-                            <li>Mitigate with centralized log system or Splunk</li>
-                        </ul>
-                    </aside>
+                    <section>
+                        <h2>Solved - Interleaved log entries</h2>
+                        <p>
+                            A user in a multi-user system performs an action known to produce an unexpected behavior.
+                            It is easy to review their log entries because they are organized together along with context
+                            information for the operation.
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>Log statements are accumulated by the writer monad</li>
+                                <li>Operation log is written as a single, atomic unit</li>
+                                <li>Individual entries do not need context due to atomic nature</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>Console Output</h2>
+<pre><code>INFO [127.0.0.1 - Anonymous] http://localhost:8080/api/board/8de53901-48b6-49b9-8a65-818b4a47d06e
+[  8 mSecs] select x2."id", x2."name", x2."terrain_set_id", x2."width", x2."height" from "board" x2 where x2."id" = ? -- Loaded 1 records
+[  5 mSecs] select x2."parent_id", x2."row", x2."column", x2."name", x2."capitol" from "board_city" x2 where x2."parent_id" = ? -- Loaded 3 records
+[  5 mSecs] select x2."parent_id", x2."row", x2."column", x2."terrain_type_index" from "board_terrain" x2 where x2."parent_id" = ? -- Loaded 24 records</code></pre>
+                        <aside class="notes">
+                        </aside>
+                    </section>
                 </section>
 
                 <section>
-                    <h2>Peril #4 - Correlating logs across tiers</h2>
-                    <p>
-                        A user performs an action known to produce an unexpected behavior.
-                        The path of execution involves multiple server processes.  Tracing their execution
-                        through the multiple systems is difficult because there is no reliable way to correlate
-                        the log statements across systems.
-                    </p>
-                    <aside class="notes">
+                    <section>
+                        <h2>Solved - Clustered Servers</h2>
+                        <p>
+                            A user performs an action known to produce an unexpected behavior.  Because the application
+                            can deliver the server-side log entries back to the client, support staff has immediate
+                            access to the relevant information.
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>Log entries can be passed to the caller</li>
+                                <li>Can be done in payload or out of band (PDF Example)</li>
+                                <li>Access controls may be necessary for this feature</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>HTTP Response Headers</h2>
+<pre><code>HTTP/1.1 200 OK
+Date: Sat, 27 Feb 2016 19:54:14 GMT
+Content-Type: application/json
+Content-Length: 685
+Service-Trace: select x2."id", x2."name", x2."terrain_set_id", x2."width", x2."height" from "board" x2 where x2."id" = ?; eventTime=0; duration=8; result=Loaded 1 records}
+Service-Trace: select x2."parent_id", x2."row", x2."column", x2."name", x2."capitol" from "board_city" x2 where x2."parent_id" = ?; eventTime=14; duration=5; result=Loaded 3 records}
+Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_index" from "board_terrain" x2 where x2."parent_id" = ?; eventTime=23; duration=5; result=Loaded 24 records}</code></pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>Works with any content type</li>
+                                <li>Easy to inspect/extract</li>
+                            </ul>
+                        </aside>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Solved - Cross-tier correlation</h2>
+                        <p>
+                            A user performs an action known to produce an unexpected behavior.  If we're really
+                            lucky and our whole world works this way, any server involved in the communication
+                            can aggregate all of the log entries for all involved servers.
+                        </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>All tiers must participate for this to work</li>
+                                <li>Easier with MicroServices</li>
+                                <li>Probably still want to use Splunk</li>
+                            </ul>
+                        </aside>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>TODOs</h2>
+                        <p>
+                            This is where you come in!
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>TODO: Log Less</h2>
                         <ul>
-                            <li>Mitigate by propagating RequestId</li>
-                            <li>Mitigate by relying on time synchronization and aggregating</li>
+                            <li>Target I/O Boundaries like network calls</li>
+                            <li>Target Timing of lengthy operations</li>
                         </ul>
-                    </aside>
+                        <aside class="notes">
+                            <ul>
+                                <li>Logging provides insight into running code.  As a functional programmer,
+                                    there should be limits to how much you need this.</li>
+                                <li>Mitigates the need for "log levels"</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>TODO: Combine Logging Monad with Result Type</h2>
+                        <ul>
+                            <li>Avoids nested monads and monad transformers</li>
+                            <li>Log interface is union of the writer and the result</li>
+                        </ul>
+                        <aside class="notes">
+                            <ul>
+                                <li>Use Try or whatever you prefer (or are already using)</li>
+                            </ul>
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>TODO: Use caution with deferred string construction</h2>
+                        <ul>
+                            <li>Closures may cause data to escape its intended scope</li>
+                            <li>Motivations are different between imperative logging and functional logging</li>
+                        </ul>
+                        <aside class="notes">
+                            There is a larger distance between a log statement in code and the manifestation
+                            of that log entry (or the decision to not manifest it).
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>TODO: Conditional Logging</h2>
+                        <ul>
+                            <li>Consider discarding this entirely</li>
+                            <li>Pass log settings as parameters to functions</li>
+                        </ul>
+                        <aside class="notes">
+                            Remove implicit dependencies (though Scala 'implicits' are ok)
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h2>TODO: Ignore deadlock issues</h2>
+                        <ul>
+                            <li>Exposure due to loss of immediacy</li>
+                            <li>Better to use non-logging techniques</li>
+                            <li>Better still to not have problems like this :)</li>
+                        </ul>
+                        <aside class="notes">
+                            Just get thread dumps from the JVM
+                        </aside>
+                    </section>
                 </section>
 
                 <section>

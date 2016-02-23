@@ -1,2 +1,2 @@
 # monadic-logging
-Project for NEScala 2016 Presentation "Monadic Logging and You!"
+Source project for NEScala 2016 (<http://www.nescala.org/>) presentation "Monadic Logging and You!"
