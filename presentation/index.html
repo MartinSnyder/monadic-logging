@@ -49,9 +49,9 @@
 					</aside>
 				</section>
 
-                <section>
+                <!--<section>-->
                     <section>
-                        <h2>Logging is a mess</h2>
+                        <h2>Logging can be a mess</h2>
                         <ul>
                             <li>Immediacy implies synchronization</li>
                             <li>Interleaved log entries</li>
@@ -59,6 +59,7 @@
                             <li>Cross-tier correlation</li>
                         </ul>
                         <aside class="notes">
+                            Logging practices are have not changed significantly to keep up with the times.
                         </aside>
                     </section>
 
@@ -106,10 +107,10 @@
                     </section>
 
                     <section>
-                        <h2>Mess #4 - Cross-tier correlation</h2>
+                        <h2>Mess #4 - Multi-tier correlation</h2>
                         <p>
                             A user performs an action known to produce an unexpected behavior.
-                            The path of execution involves multiple server processes.  Tracing their execution
+                            The path of execution involves multiple server processes.  Tracing the user's execution
                             through the multiple systems is difficult because there is no reliable way to correlate
                             the log statements across systems.
                         </p>
@@ -120,9 +121,9 @@
                             </ul>
                         </aside>
                     </section>
-                </section>
+                <!--</section>-->
 
-                <section>
+                <!--<section>-->
                     <section>
                         <h2>Writer Monad Tutorial</h2>
 <pre><code class="scala">case class SimpleWriter[T](log: List[String], value: T) {
@@ -134,6 +135,12 @@
         SimpleWriter(log ::: nextWriter.log, nextWriter.value)
     }
 }</code></pre>
+                        <aside class="notes">
+                            <ul>
+                                <li>Simplest writer monad I could write in Scala</li>
+                                <li>Pairs a value with a list of string entries</li>
+                            </ul>
+                        </aside>
                     </section>
 
                     <section>
@@ -181,12 +188,13 @@ case class SimpleLogger[T](log: List[Entry], value: T) {
                         <aside class="notes">
                             <ul>
                                 <li>Replace strings in the writer with a structure specific to logging</li>
+                                <li>Can and should add helper routines to simlpify construction</li>
                             </ul>
                         </aside>
                     </section>
-                </section>
+                <!--</section>-->
 
-                <section>
+                <!--<section>-->
                     <section>
                         <h2>Solved - Immediacy implies synchronization</h2>
                         <p>
@@ -201,9 +209,9 @@ case class SimpleLogger[T](log: List[Entry], value: T) {
                             </ul>
                         </aside>
                     </section>
-                </section>
+                <!--</section>-->
 
-                <section>
+                <!--<section>-->
                     <section>
                         <h2>Solved - Interleaved log entries</h2>
                         <p>
@@ -229,9 +237,9 @@ case class SimpleLogger[T](log: List[Entry], value: T) {
                         <aside class="notes">
                         </aside>
                     </section>
-                </section>
+                <!--</section>-->
 
-                <section>
+                <!--<section>-->
                     <section>
                         <h2>Solved - Clustered Servers</h2>
                         <p>
@@ -241,7 +249,7 @@ case class SimpleLogger[T](log: List[Entry], value: T) {
                         </p>
                         <aside class="notes">
                             <ul>
-                                <li>Log entries can be passed to the caller</li>
+                                <li>Log entries can be passed to the caller in addition to other output</li>
                                 <li>Can be done in payload or out of band (PDF Example)</li>
                                 <li>Access controls may be necessary for this feature</li>
                             </ul>
@@ -264,9 +272,9 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                             </ul>
                         </aside>
                     </section>
-                </section>
+                <!--</section>-->
 
-                <section>
+                <!--<section>-->
                     <section>
                         <h2>Solved - Cross-tier correlation</h2>
                         <p>
@@ -282,14 +290,19 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                             </ul>
                         </aside>
                     </section>
-                </section>
+                <!--</section>-->
 
-                <section>
+                <!--<section>-->
                     <section>
                         <h2>TODOs</h2>
                         <p>
                             This is where you come in!
                         </p>
+                        <aside class="notes">
+                            <ul>
+                                <li>Logging in general is more about usage models than library implementation</li>
+                            </ul>
+                        </aside>
                     </section>
 
                     <section>
@@ -302,7 +315,7 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                             <ul>
                                 <li>Logging provides insight into running code.  As a functional programmer,
                                     there should be limits to how much you need this.</li>
-                                <li>Mitigates the need for "log levels"</li>
+                                <li>Timing example - computing password hash</li>
                             </ul>
                         </aside>
                     </section>
@@ -316,6 +329,7 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                         <aside class="notes">
                             <ul>
                                 <li>Use Try or whatever you prefer (or are already using)</li>
+                                <li>Implementation is straightforward because of conditional execution vs. aggregation</li>
                             </ul>
                         </aside>
                     </section>
@@ -327,19 +341,25 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                             <li>Motivations are different between imperative logging and functional logging</li>
                         </ul>
                         <aside class="notes">
-                            There is a larger distance between a log statement in code and the manifestation
-                            of that log entry (or the decision to not manifest it).
+                            <ul>
+                                <li>There is a larger distance between a log statement in code and the manifestation
+                                of that log entry (or the decision to not manifest it).</li>
+                                <li>We've become trained to do this by DEBUG logging</li>
+                            </ul>
                         </aside>
                     </section>
 
                     <section>
                         <h2>TODO: Conditional Logging</h2>
                         <ul>
-                            <li>Consider discarding this entirely</li>
+                            <li>Consider discarding "log levels"</li>
                             <li>Pass log settings as parameters to functions</li>
                         </ul>
                         <aside class="notes">
-                            Remove implicit dependencies (though Scala 'implicits' are ok)
+                            <ul>
+                                <li>Can do conditional logging at the call site</li>
+                                <li>Avoid implicit dependencies (though Scala 'implicits' are ok)</li>
+                            </ul>
                         </aside>
                     </section>
 
@@ -351,10 +371,13 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                             <li>Better still to not have problems like this :)</li>
                         </ul>
                         <aside class="notes">
-                            Just get thread dumps from the JVM
+                            <ul>
+                                <li>Just get thread dumps from the JVM or a tool like App Dynamics</li>
+                                <li>Can still be at risk even if you don't sychronize (database deadlock)</li>
+                            </ul>
                         </aside>
                     </section>
-                </section>
+                <!--</section>-->
 
                 <section>
                     <h2>Links</h2>
