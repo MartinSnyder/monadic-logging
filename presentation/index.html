@@ -377,15 +377,27 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                             </ul>
                         </aside>
                     </section>
+
+                <section>
+                    <h2>TODO: Never throw exceptions</h2>
+                    <ul>
+                        <li>Narrow scope of exceptions using Try</li>
+                        <li>Pass failures out to preserve associated log entries</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>If you throw an exception, you will lose any accumulated log entries</li>
+                        </ul>
+                    </aside>
+                </section>
                 <!--</section>-->
 
                 <section>
                     <h2>Links</h2>
                     <ul>
                         <li>Slides & Sample Code: <a href="https://github.com/MartinSnyder/monadic-logging">https://github.com/MartinSnyder/monadic-logging</a></li>
-                        <li>Northeast Scala Symposium: <a href="http://www.nescala.org/">http://www.nescala.org/</a></li>
+                        <li>PHASE: <a href="http://www.nescala.org/">https://www.meetup.com/scala-phase/</a></li>
                         <li>Blog: <a href="http://martinsnyder.net">http://martinsnyder.net</a></li>
-                        <li>Reveal.js: <a href="http://lab.hakim.se/reveal-js/">http://lab.hakim.se/reveal-js/</a></li>
                     </ul>
                     <aside class="notes">
                     </aside>
@@ -396,12 +408,6 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                     <p>
                         <small><a href="http://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://www.wingspan.com">Wingspan Technology, Inc.</a></small>
                     </p>
-                    <aside class="notes">
-                        <ul>
-                            <li>Brian Clapper and the rest of the organizers</li>
-                            <li>NEScala Attendees and all the voters</li>
-                        </ul>
-                    </aside>
                 </section>
 			</div>
 
