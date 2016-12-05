@@ -14,7 +14,7 @@ object WriterExample {
   def loggedToString(o: Any): SimpleWriter[String] =
     SimpleWriter(List(s"Converted $o to string"), o.toString)
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     val resultWithLog = for (
       sum <- loggedAdder(5, 7);
       converted <- loggedToString(sum)

@@ -17,7 +17,7 @@ case class SimpleLogger[T](log: List[SimpleLogger.Entry], value: T) {
   def map[B](f: T => B): SimpleLogger[B] =
     SimpleLogger(log, f(value))
 
-  def flatMap[B](f: T => SimpleLogger[B]) = {
+  def flatMap[B](f: T => SimpleLogger[B]): SimpleLogger[B] = {
     val nextWriter = f(value)
     SimpleLogger(log ::: nextWriter.log, nextWriter.value)
   }

@@ -23,7 +23,7 @@ object TracedTry {
   private def buildEntry[T]( f: => Try[T],
                              operation: Option[String] = None,
                              arguments: Seq[AnyRef] = Nil,
-                             resultEmitter: T => String = (result: T) => ""
+                             resultEmitter: T => String = (_: T) => ""
                            ): TracedTry[T] = {
     val start = System.currentTimeMillis()
     val result = f
@@ -57,7 +57,7 @@ object TracedTry {
     * @tparam T return type of f
     * @return returns a TracedResult pairing the time entry for f along with the result for f
     */
-  def time[T](operation: String, arguments: Seq[AnyRef] = Nil)(f: => T, resultEmitter: T => String = (result: T) => ""): TracedTry[T] = {
+  def time[T](operation: String, arguments: Seq[AnyRef] = Nil)(f: => T, resultEmitter: T => String = (_: T) => ""): TracedTry[T] = {
     buildEntry(Try(f), Some(operation), arguments, resultEmitter)
   }
 }
@@ -96,7 +96,7 @@ class TracedTry[+T](val trace: List[TracedTry.Entry], val value: Try[T]) {
     */
   def flatMap[B](f: T => TracedTry[B]): TracedTry[B] = {
     value match {
-      case Failure(e) =>
+      case Failure(_) =>
         // Failures can coerce to any type
         this.asInstanceOf[TracedTry[B]]
 

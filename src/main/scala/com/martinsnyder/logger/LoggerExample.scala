@@ -16,7 +16,7 @@ object LoggerExample {
   def loggedToString(o: Any): SimpleLogger[String] =
     SimpleLogger(List(Entry(s"Converted $o to string")), o.toString)
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     val resultWithLog = for (
       sum <- loggedAdder(5, 7);
       _ <- SimpleLogger.lift(Thread.sleep(15));
