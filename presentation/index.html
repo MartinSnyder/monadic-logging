@@ -1,23 +1,15 @@
 <!doctype html>
-<html lang="en">
-
+<html>
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>Monadic Logging and You</title>
-
-		<meta name="description" content="Logging is more complicated than most people realize, and when they do, it's too late to do anything about it until 'next time.' Learn how to use a writer monad as a logging mechanism in your code. More importantly though, learn why you would want to do this, and what the benefits are.  There is a price to pay in adopting this approach, but it's more 'functional', addresses existing challenges, and enables new, exciting capabilities.">
-		<meta name="author" content="Martin Snyder">
-
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<title>reveal.js</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<link rel="stylesheet" href="css/theme/black.css">
 
-		<!-- Code syntax highlighting -->
+		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
 
 		<!-- Printing and PDF exports -->
@@ -28,22 +20,15 @@
 			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
 			document.getElementsByTagName( 'head' )[0].appendChild( link );
 		</script>
-
-		<!--[if lt IE 9]>
-		<script src="lib/js/html5shiv.js"></script>
-		<![endif]-->
 	</head>
-
 	<body>
-
 		<div class="reveal">
-
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
 					<h1>Monadic Logging and You</h1>
 					<p>
-						<small><a href="http://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://www.wingspan.com">Wingspan Technology, Inc.</a></small>
+						<small><a href="https://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://www.wingspan.com">Wingspan Technology, Inc.</a></small>
 					</p>
 					<aside class="notes">
 					</aside>
@@ -397,7 +382,7 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                     <ul>
                         <li>Slides & Sample Code: <a href="https://github.com/MartinSnyder/monadic-logging">https://github.com/MartinSnyder/monadic-logging</a></li>
                         <li>PHASE: <a href="http://www.nescala.org/">https://www.meetup.com/scala-phase/</a></li>
-                        <li>Blog: <a href="http://martinsnyder.net">http://martinsnyder.net</a></li>
+                        <li>Blog: <a href="https://martinsnyder.net">https://martinsnyder.net</a></li>
                     </ul>
                     <aside class="notes">
                     </aside>
@@ -406,40 +391,27 @@ Service-Trace: select x2."parent_id", x2."row", x2."column", x2."terrain_type_in
                 <section>
                     <h2>Thank You!</h2>
                     <p>
-                        <small><a href="http://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://www.wingspan.com">Wingspan Technology, Inc.</a></small>
+                        <small><a href="https://martinsnyder.net">Martin Snyder</a> / <a href="https://twitter.com/MartinSnyder">@MartinSnyder</a> / <a href="http://www.wingspan.com">Wingspan Technology, Inc.</a></small>
                     </p>
                 </section>
 			</div>
-
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.js"></script>
 
 		<script>
-
-			// Full list of configuration options available at:
-			// https://github.com/hakimel/reveal.js#configuration
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
 			Reveal.initialize({
-				controls: true,
-				progress: true,
-				history: true,
-				center: true,
-
-				transition: 'slide', // none/fade/slide/convex/concave/zoom
-
-				// Optional reveal.js plugins
 				dependencies: [
-					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'plugin/zoom-js/zoom.js', async: true },
-					{ src: 'plugin/notes/notes.js', async: true }
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
 				]
 			});
-
 		</script>
-
 	</body>
 </html>
