@@ -5,5 +5,5 @@ Source project for NEScala 2016 (<http://www.nescala.org/>) presentation "Monadi
 
 NOTE: This repository was updated in 2019 to upgrade all of its dependencies in response to GitHub alerts.
 
-[slides]: https://martinsnyder.net/asset/revealjs/monadic-logging.html
+[slides]: https://martinsnyder.net/presentations/revealjs/monadic-logging.html
 [video]: https://www.youtube.com/watch?v=t-YX55ZF4g0
